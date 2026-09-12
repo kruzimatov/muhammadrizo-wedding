@@ -7,7 +7,7 @@ const languageButtons = document.querySelectorAll(".language-option");
 const musicToggleBtn = document.getElementById("musicToggleBtn");
 const backgroundMusic = document.getElementById("backgroundMusic");
 
-const targetWeddingDate = new Date("2026-08-02T10:00:00+05:00").getTime();
+const targetWeddingDate = new Date("2026-09-25T07:00:00+05:00").getTime();
 const OPENING_DURATION_MS = 1000;
 const DEFAULT_LANGUAGE = "uz";
 const LANGUAGE_STORAGE_KEY = "weddingInvitationLanguage";
@@ -17,31 +17,112 @@ const ONE_MINUTE_MS = ONE_SECOND_MS * 60;
 const ONE_HOUR_MS = ONE_MINUTE_MS * 60;
 const ONE_DAY_MS = ONE_HOUR_MS * 24;
 
+// TODO: Create new Firebase project for this client and replace config
+firebase.initializeApp({
+    apiKey: "FIREBASE_API_KEY",
+    authDomain: "FIREBASE_AUTH_DOMAIN",
+    projectId: "FIREBASE_PROJECT_ID",
+    storageBucket: "FIREBASE_STORAGE_BUCKET",
+    messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+    appId: "FIREBASE_APP_ID"
+});
+const db = firebase.firestore();
+
+const INITIAL_WISHES = [];
+
+function createWishCard(wish, isNew) {
+    const card = document.createElement("div");
+    card.className = "wish-card" + (isNew ? " wish-card--new" : "");
+    card.innerHTML = '<p class="wish-text"></p><p class="wish-author"></p>';
+    card.querySelector(".wish-text").textContent = wish.text;
+    card.querySelector(".wish-author").textContent = wish.name;
+    return card;
+}
+
+function renderWishes() {
+    const grid = document.getElementById("wishesGrid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    INITIAL_WISHES.forEach(function(w) { grid.appendChild(createWishCard(w, false)); });
+    db.collection("wishes").where("approved", "==", true)
+        .onSnapshot(function(snapshot) {
+            var cards = grid.querySelectorAll(".wish-card--firestore");
+            cards.forEach(function(c) { c.remove(); });
+            snapshot.forEach(function(doc) {
+                var d = doc.data();
+                var card = createWishCard({ name: d.name, text: d.text }, false);
+                card.classList.add("wish-card--firestore");
+                grid.appendChild(card);
+            });
+        });
+}
+
+function setupWishesToggle() {
+    const btn = document.getElementById("wishesToggleBtn");
+    const grid = document.getElementById("wishesGrid");
+    if (!btn || !grid) return;
+    let expanded = false;
+    btn.addEventListener("click", function() {
+        expanded = !expanded;
+        grid.classList.toggle("expanded", expanded);
+        const locale = getLocale();
+        btn.textContent = expanded ? (locale.wishesHideAll || "YOPISH") : (locale.wishesShowAll || "BARCHA TILAKLARNI KO'RISH");
+    });
+}
+
+function setupWishesForm() {
+    const form = document.getElementById("wishesForm");
+    if (!form) return;
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const nameInput = document.getElementById("wishName");
+        const msgInput = document.getElementById("wishMessage");
+        const name = nameInput.value.trim();
+        const text = msgInput.value.trim();
+        if (!name) { nameInput.focus(); return; }
+        if (!text) { msgInput.focus(); return; }
+        var submitBtn = form.querySelector(".wishes-submit-btn");
+        if (submitBtn) submitBtn.disabled = true;
+        db.collection("wishes").add({
+            name: name,
+            text: text,
+            approved: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+            form.reset();
+            if (submitBtn) submitBtn.disabled = false;
+            alert("Rahmat! Tilagingiz qo'shildi.");
+        }).catch(function() {
+            if (submitBtn) submitBtn.disabled = false;
+            alert("Xatolik yuz berdi. Qayta urinib ko'ring.");
+        });
+    });
+}
+
 const LOCALES = {
     ru: {
-        pageTitle: "Иззатулло и Муяссархон | Свадебное приглашение",
-        metaDescription: "Свадебное приглашение Иззатулло и Муяссархон на 2 августа 2026 года.",
+        pageTitle: "Мухаммадризо | Свадебное приглашение",
+        metaDescription: "Приглашение на никох Мухаммадризо, 25 сентября 2026 года.",
         ariaIntro: "Конверт с приглашением",
         ariaEnvelope: "Запечатанный бумажный конверт",
         ariaWeddingDate: "Дата свадьбы",
-        ariaCalendar: "Календарь августа 2026 с выделенным 2 августа",
+        ariaCalendar: "Календарь сентября 2026 с выделенным 25 сентября",
         ariaWeddingDay: "День свадьбы",
-        ariaOrnamentHero: "Традиционная страница с именами молодоженов",
+        ariaOrnamentHero: "Традиционная страница с именем жениха",
         ariaVenueDetails: "Место проведения",
         ariaCountdown: "Обратный отсчет",
-        envelopeTopNote: "<span class=\"flap-note-top\">ВАС</span><span class=\"flap-note-middle\">ПРИГЛАШАЕМ</span><span class=\"flap-note-script\">на свадьбу</span>",
-        withLove: "с любовью,",
-        signatureNames: "Иззатулло\u00a0и\u00a0Муяссархон",
-        ornamentNames: "<span class=\"ornament-name-line\">Иззатулло</span><span class=\"ornament-name-amp\">и</span><span class=\"ornament-name-line\">Муяссархон</span>",
-        ornamentMessage: "Спешим сообщить<br />радостную новость:<br />мы женимся!",
-        ornamentDay: "02",
-        ornamentMonth: "08",
+        envelopeTopNote: "<span class=\"flap-note-top\">ВАС</span><span class=\"flap-note-middle\">ПРИГЛАШАЕМ</span><span class=\"flap-note-script\">на нахорги ош</span>",
+        withLove: "с уважением,",
+        signatureNames: "СЕМЬЯ МУХАММАДИМИНОВЫХ",
+        ornamentNames: "<span class=\"ornament-name-line\">Мухаммадризо</span>",
+        ornamentDay: "25",
+        ornamentMonth: "09",
         ornamentYear: "26",
-        heroNames: "Дорогие&nbsp;наши<br />родные&nbsp;и&nbsp;<span class=\"no-break\">близкие!</span>",
+        heroNames: "Уважаемый&nbsp;дорогой<br /><span class=\"no-break\">гость!</span>",
         openHere: "открыть",
-        lead: "В этот прекрасный день мы соединяем наши сердца и начинаем новую историю - историю нашей любви.<br /><br />Будем счастливы разделить радость этого торжества вместе с вами.<br /><br /><strong>С любовью приглашаем вас на нашу свадьбу.</strong>",
+        lead: "Приглашаем Вас и Вашу семью на нахорги ош по случаю никоха нашего сына Мухаммадризо.<br /><br /><strong>Будем рады видеть Вас в числе наших дорогих гостей.</strong>",
         scrollHint: "Прокрутите вниз",
-        calendarMonth: "Август, 2026",
+        calendarMonth: "Сентябрь, 2026",
         weekdayMon: "ПН",
         weekdayTue: "ВТ",
         weekdayWed: "СР",
@@ -50,9 +131,9 @@ const LOCALES = {
         weekdaySat: "СБ",
         weekdaySun: "ВС",
         locationTitle: "Адрес:",
-        venueName: "Тойхона Omad",
-        venueTime: "В 10:00",
-        venueAddress: "Ферганская область, город Маргилан",
+        venueName: "Тойхона Nursaroy",
+        venueTime: "Нахорги ош",
+        venueAddress: "г. Андижан, улица 80 метров",
         venueLandmark: "",
         mapLinkYandex: "Яндекс Карты",
         mapLinkGoogle: "Google Maps",
@@ -68,31 +149,41 @@ const LOCALES = {
         languageUzLabel: "O'zbekcha",
         musicPlayLabel: "Включить музыку",
         musicPauseLabel: "Остановить музыку",
+        wishesTitle: "Пожелания",
+        wishesSubtitle: "ТЁПЛЫЕ СЛОВА ОТ БЛИЗКИХ",
+        wishesShowAll: "ПОКАЗАТЬ ВСЕ ПОЖЕЛАНИЯ",
+        wishesHideAll: "СКРЫТЬ",
+        wishesFormTitle: "Оставьте пожелание",
+        wishesFormDesc: "Ваше пожелание будет опубликовано после проверки.",
+        wishesNameLabel: "ВАШЕ ИМЯ",
+        wishesNamePlaceholder: "Введите ваше имя",
+        wishesMessageLabel: "ПОЖЕЛАНИЕ",
+        wishesMessagePlaceholder: "Тёплые слова...",
+        wishesSubmit: "ОТПРАВИТЬ",
     },
     uz: {
-        pageTitle: "Izzatullo va Muyassarxon | To'y taklifnomasi",
-        metaDescription: "Izzatullo va Muyassarxonning 2026-yil 2-avgustdagi to'y taklifnomasi.",
+        pageTitle: "Muhammadrizo | Nikoh to'yi",
+        metaDescription: "Muhammadrizoning 2026-yil 25-sentyabrdagi nikoh to'yi taklifnomasi.",
         ariaIntro: "Taklifnoma konverti",
         ariaEnvelope: "Muhrlangan qog'oz konvert",
         ariaWeddingDate: "To'y sanasi",
-        ariaCalendar: "2026-yil avgust kalendari, 2-avgust belgilangan",
+        ariaCalendar: "2026-yil sentyabr kalendari, 25-sentyabr belgilangan",
         ariaWeddingDay: "To'y kuni",
-        ariaOrnamentHero: "Yoshlar ismlari tushirilgan an'anaviy sahifa",
+        ariaOrnamentHero: "Kuyov ismi tushirilgan an'anaviy sahifa",
         ariaVenueDetails: "Manzil",
         ariaCountdown: "Orqaga sanoq",
-        envelopeTopNote: "<span class=\"flap-note-top\">SIZNI</span><span class=\"flap-note-middle\">TO'YIMIZGA</span><span class=\"flap-note-script\">taklif etamiz</span>",
-        withLove: "muhabbat ila,",
-        signatureNames: "Izzatullo\u00a0va\u00a0Muyassarxon",
-        ornamentNames: "<span class=\"ornament-name-line\">Izzatullo</span><span class=\"ornament-name-amp\">va</span><span class=\"ornament-name-line\">Muyassarxon</span>",
-        ornamentMessage: "Quvonchli yangilik:<br />biz turmush<br />quramiz!",
-        ornamentDay: "02",
-        ornamentMonth: "08",
+        envelopeTopNote: "<span class=\"flap-note-top\">SIZNI</span><span class=\"flap-note-middle\">NAXORGI OSHIMIZGA</span><span class=\"flap-note-script\">taklif etamiz</span>",
+        withLove: "hurmat va ehtirom ila,",
+        signatureNames: "MUHAMMADIMINOV OILASI",
+        ornamentNames: "<span class=\"ornament-name-line\">Muhammadrizo</span>",
+        ornamentDay: "25",
+        ornamentMonth: "09",
         ornamentYear: "26",
-        heroNames: "Aziz\u00a0va\u00a0qadrdon<br /><span class=\"no-break\">insonimiz!</span>",
+        heroNames: "Hurmatli Aziz<br /><span class=\"no-break\">Mehmonimiz!</span>",
         openHere: "ochish",
-        lead: "Hayotimizdagi eng baxtli kunlardan biri - nikoh to'yimizni siz bilan birga nishonlashni niyat qildik.<br /><br />Sizni ushbu to'y marosimimizga samimiy taklif etamiz.<br /><br /><strong>Quvonchli kunimizda aziz mehmonimiz bo'lishingizni intiqlik bilan kutamiz.</strong>",
+        lead: "Sizni va oila a'zolaringizni farzandimiz Muhammadrizoning \"NIKOH\" to'yi munosabati bilan naxorgi osh dasturxonimizga samimiy taklif etamiz.<br /><br /><strong>Quvonchli kunimizda aziz mehmonimiz bo'lishingizni intizorlik bilan kutamiz.</strong>",
         scrollHint: "Pastga tushuring",
-        calendarMonth: "Avgust, 2026",
+        calendarMonth: "Sentyabr, 2026",
         weekdayMon: "DU",
         weekdayTue: "SE",
         weekdayWed: "CHOR",
@@ -101,9 +192,9 @@ const LOCALES = {
         weekdaySat: "SHA",
         weekdaySun: "YA",
         locationTitle: "Manzil:",
-        venueName: "Omad to'yxonasi",
-        venueTime: "Soat 10:00 da",
-        venueAddress: "Farg'ona viloyati, Marg'ilon shahri",
+        venueName: "Nursaroy to'yxonasi",
+        venueTime: "Naxorgi osh",
+        venueAddress: "Andijon sh. 80 metr ko'cha",
         venueLandmark: "",
         mapLinkYandex: "Yandex xaritasi",
         mapLinkGoogle: "Google Maps",
@@ -119,27 +210,38 @@ const LOCALES = {
         languageUzLabel: "O'zbekcha",
         musicPlayLabel: "Musiqani yoqish",
         musicPauseLabel: "Musiqani to'xtatish",
+        wishesTitle: "Tilaklar",
+        wishesSubtitle: "YAQINLARIMIZDAN ILIQ SO'ZLAR",
+        wishesShowAll: "BARCHA TILAKLARNI KO'RISH",
+        wishesHideAll: "YOPISH",
+        wishesFormTitle: "Tilak qoldiring",
+        wishesFormDesc: "Tilagingiz ko'rib chiqilgandan so'ng sahifada chop etiladi.",
+        wishesNameLabel: "ISMINGIZ",
+        wishesNamePlaceholder: "Ismingizni kiriting",
+        wishesMessageLabel: "TILAGINGIZ",
+        wishesMessagePlaceholder: "Iliq so'zlaringiz...",
+        wishesSubmit: "YUBORISH",
     },
     en: {
-        pageTitle: "Izzatullo and Muyassarxon | Wedding Invitation",
-        metaDescription: "Wedding invitation of Izzatullo and Muyassarxon, August 2, 2026.",
+        pageTitle: "Muhammadrizo | Wedding Invitation",
+        metaDescription: "Wedding invitation of Muhammadrizo, September 25, 2026.",
         ariaIntro: "Invitation envelope",
         ariaEnvelope: "Sealed paper envelope",
         ariaWeddingDate: "Wedding date",
-        ariaCalendar: "August 2026 calendar, August 2 highlighted",
+        ariaCalendar: "September 2026 calendar, September 25 highlighted",
         ariaWeddingDay: "Wedding day",
-        ariaOrnamentHero: "Traditional page with the names of the couple",
+        ariaOrnamentHero: "Traditional page with the groom's name",
         ariaVenueDetails: "Venue details",
         ariaCountdown: "Countdown",
-        envelopeTopNote: "<span class=\"flap-note-top\">YOU ARE</span><span class=\"flap-note-middle\">INVITED</span><span class=\"flap-note-script\">to our wedding</span>",
-        withLove: "with love,",
-        signatureNames: "Izzatullo\u00a0&\u00a0Muyassarxon",
-        ornamentNames: "<span class=\"ornament-name-line\">Izzatullo</span><span class=\"ornament-name-amp\">&</span><span class=\"ornament-name-line\">Muyassarxon</span>",
-        heroNames: "Dear\u00a0friends<br /><span class=\"no-break\">and family!</span>",
+        envelopeTopNote: "<span class=\"flap-note-top\">YOU ARE</span><span class=\"flap-note-middle\">INVITED</span><span class=\"flap-note-script\">to the morning feast</span>",
+        withLove: "with respect,",
+        signatureNames: "MUHAMMADIMINOV FAMILY",
+        ornamentNames: "<span class=\"ornament-name-line\">Muhammadrizo</span>",
+        heroNames: "Dear honored<br /><span class=\"no-break\">guest!</span>",
         openHere: "open",
-        lead: "One of the happiest days of our lives — our wedding — and we want to celebrate it with you.<br /><br />We sincerely invite you to join us for this wedding ceremony.<br /><br /><strong>We look forward to having you as our cherished guest.</strong>",
+        lead: "We invite you and your family to the morning feast celebrating the nikoh of our son Muhammadrizo.<br /><br /><strong>We look forward to having you as our cherished guest.</strong>",
         scrollHint: "Scroll down",
-        calendarMonth: "August, 2026",
+        calendarMonth: "September, 2026",
         weekdayMon: "Mo",
         weekdayTue: "Tu",
         weekdayWed: "We",
@@ -148,9 +250,9 @@ const LOCALES = {
         weekdaySat: "Sa",
         weekdaySun: "Su",
         locationTitle: "Address:",
-        venueName: "Omad Wedding Hall",
-        venueTime: "At 10:00",
-        venueAddress: "Fergana region, Margilan city",
+        venueName: "Nursaroy Wedding Hall",
+        venueTime: "Morning feast",
+        venueAddress: "Andijan, 80 meters street",
         venueLandmark: "",
         mapLinkYandex: "Yandex Maps",
         mapLinkGoogle: "Google Maps",
@@ -166,6 +268,17 @@ const LOCALES = {
         languageUzLabel: "Uzbek",
         musicPlayLabel: "Play music",
         musicPauseLabel: "Pause music",
+        wishesTitle: "Wishes",
+        wishesSubtitle: "WARM WORDS FROM LOVED ONES",
+        wishesShowAll: "VIEW ALL WISHES",
+        wishesHideAll: "HIDE",
+        wishesFormTitle: "Leave a wish",
+        wishesFormDesc: "Your wish will be published after review.",
+        wishesNameLabel: "YOUR NAME",
+        wishesNamePlaceholder: "Enter your name",
+        wishesMessageLabel: "YOUR WISH",
+        wishesMessagePlaceholder: "Warm words...",
+        wishesSubmit: "SUBMIT",
     },
 
 };
@@ -421,3 +534,7 @@ const countdownInterval = window.setInterval(() => {
     const hasTimeLeft = updateCountdown();
     if (!hasTimeLeft) window.clearInterval(countdownInterval);
 }, 1000);
+
+renderWishes();
+setupWishesToggle();
+setupWishesForm();

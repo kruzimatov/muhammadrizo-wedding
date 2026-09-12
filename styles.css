@@ -3070,3 +3070,248 @@ body.invitation-visible .heritage-horn--right {
     margin: 0;
     font-weight: 400;
 }
+
+.wishes-section {
+    width: min(100%, 980px);
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 3.4rem) 0 clamp(2.4rem, 6vw, 4rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.8rem, 2vw, 1.3rem);
+    border-top: 1px solid rgba(108, 108, 108, 0.18);
+}
+
+.wishes-title {
+    margin: 0;
+    color: var(--ink-red);
+    font-family: var(--font-script);
+    font-size: clamp(2.05rem, 6.2vw, 3.45rem);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1;
+}
+
+.wishes-subtitle {
+    margin: 0;
+    color: var(--gold-soft);
+    font-family: var(--font-ui);
+    font-size: clamp(0.68rem, 1.3vw, 0.82rem);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.wishes-grid {
+    width: 100%;
+    max-width: 760px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: clamp(0.7rem, 1.8vw, 1.1rem);
+    margin-top: clamp(0.6rem, 1.6vw, 1rem);
+}
+
+.wish-card {
+    position: relative;
+    padding: clamp(1.1rem, 2.8vw, 1.6rem) clamp(1rem, 2.4vw, 1.4rem);
+    border: 1px solid rgba(108, 108, 108, 0.14);
+    border-radius: 6px;
+    background: rgba(255, 253, 246, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1.2vw, 0.8rem);
+}
+
+.wish-card::before {
+    content: "\201C";
+    position: absolute;
+    top: clamp(0.4rem, 1vw, 0.7rem);
+    left: clamp(0.7rem, 1.6vw, 1rem);
+    color: var(--gold-soft);
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    opacity: 0.7;
+}
+
+.wish-text {
+    margin: 0;
+    color: var(--ink-red);
+    font-family: var(--font-serif);
+    font-size: clamp(0.88rem, 1.7vw, 1.02rem);
+    line-height: 1.45;
+}
+
+.wish-author {
+    margin: 0;
+    color: var(--gold-soft);
+    font-family: var(--font-ui);
+    font-size: clamp(0.68rem, 1.2vw, 0.78rem);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.wish-author::before {
+    content: "\2014 ";
+}
+
+.wishes-toggle-btn {
+    appearance: none;
+    margin-top: clamp(0.4rem, 1vw, 0.7rem);
+    padding: clamp(0.7rem, 1.6vw, 0.9rem) clamp(1.8rem, 4vw, 2.6rem);
+    border: 1.5px solid var(--gold-soft);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--gold-soft);
+    font-family: var(--font-ui);
+    font-size: clamp(0.7rem, 1.2vw, 0.82rem);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.wishes-toggle-btn:hover,
+.wishes-toggle-btn:focus-visible {
+    background: var(--gold-soft);
+    color: var(--ink-red);
+}
+
+.wishes-form-card {
+    width: min(100%, 520px);
+    margin-top: clamp(1rem, 2.8vw, 1.8rem);
+    padding: clamp(1.4rem, 3.6vw, 2.2rem) clamp(1.2rem, 3vw, 2rem);
+    border: 1px solid rgba(108, 108, 108, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 253, 246, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.3rem, 0.8vw, 0.5rem);
+}
+
+.wishes-form-title {
+    margin: 0;
+    color: var(--ink-red);
+    font-family: var(--font-heading);
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 600;
+    text-align: center;
+}
+
+.wishes-form-desc {
+    margin: 0;
+    color: var(--ink-red-soft);
+    font-family: var(--font-serif);
+    font-size: clamp(0.82rem, 1.5vw, 0.95rem);
+    text-align: center;
+    line-height: 1.4;
+}
+
+.wishes-form {
+    width: 100%;
+    margin-top: clamp(0.6rem, 1.4vw, 1rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.3rem, 0.7vw, 0.45rem);
+}
+
+.wishes-label {
+    color: var(--ink-red-soft);
+    font-family: var(--font-ui);
+    font-size: clamp(0.66rem, 1.1vw, 0.76rem);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: clamp(0.3rem, 0.8vw, 0.5rem);
+}
+
+.wishes-input,
+.wishes-textarea {
+    width: 100%;
+    padding: clamp(0.6rem, 1.4vw, 0.85rem) clamp(0.7rem, 1.6vw, 1rem);
+    border: 1px solid rgba(108, 108, 108, 0.28);
+    border-radius: 6px;
+    background: #fffdf6;
+    color: var(--ink-red);
+    font-family: var(--font-serif);
+    font-size: clamp(0.9rem, 1.7vw, 1.02rem);
+    line-height: 1.4;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.wishes-input:focus,
+.wishes-textarea:focus {
+    border-color: var(--gold-soft);
+}
+
+.wishes-input::placeholder,
+.wishes-textarea::placeholder {
+    color: rgba(170, 20, 16, 0.35);
+}
+
+.wishes-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.wishes-submit-btn {
+    appearance: none;
+    align-self: center;
+    margin-top: clamp(0.5rem, 1.2vw, 0.8rem);
+    padding: clamp(0.65rem, 1.5vw, 0.85rem) clamp(2.4rem, 5vw, 3.2rem);
+    border: none;
+    border-radius: 6px;
+    background: var(--gold-soft);
+    color: var(--ink-red);
+    font-family: var(--font-ui);
+    font-size: clamp(0.72rem, 1.2vw, 0.84rem);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.wishes-submit-btn:hover,
+.wishes-submit-btn:focus-visible {
+    background: var(--gold-strong);
+    transform: translateY(-1px);
+}
+
+.wishes-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.wish-card.wish-card--new {
+    animation: wish-fade-in 0.5s ease both;
+}
+
+@keyframes wish-fade-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.wishes-grid.expanded .wish-card { display: flex; }
+.wishes-grid:not(.expanded) .wish-card:nth-child(n+4) { display: none; }
+
+@media (max-width: 740px) {
+    .wishes-section {
+        padding: clamp(1.6rem, 6vw, 2.2rem) 0 clamp(2rem, 8vw, 3rem);
+    }
+
+    .wishes-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .wishes-title {
+        font-size: clamp(1.65rem, 9.2vw, 2.45rem);
+    }
+}
