@@ -17,14 +17,13 @@ const ONE_MINUTE_MS = ONE_SECOND_MS * 60;
 const ONE_HOUR_MS = ONE_MINUTE_MS * 60;
 const ONE_DAY_MS = ONE_HOUR_MS * 24;
 
-// TODO: Create new Firebase project for this client and replace config
 firebase.initializeApp({
-    apiKey: "FIREBASE_API_KEY",
-    authDomain: "FIREBASE_AUTH_DOMAIN",
-    projectId: "FIREBASE_PROJECT_ID",
-    storageBucket: "FIREBASE_STORAGE_BUCKET",
-    messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
-    appId: "FIREBASE_APP_ID"
+    apiKey: "AIzaSyA74BmbXZyK3bu0Szsykbtq-_r3LksfkeU",
+    authDomain: "muhammadrizo-wedding.firebaseapp.com",
+    projectId: "muhammadrizo-wedding",
+    storageBucket: "muhammadrizo-wedding.firebasestorage.app",
+    messagingSenderId: "729775062921",
+    appId: "1:729775062921:web:30f1629d5dab8c19deeb58"
 });
 const db = firebase.firestore();
 
